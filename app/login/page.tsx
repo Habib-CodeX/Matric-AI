@@ -380,90 +380,93 @@ export default function AuthPage() {
           }
         `}</style>
 
-        <div className="scene-container flex flex-col items-center space-y-12 z-10">
-          <div className="open-book">
-            <div className="book-stack-layer-1"></div>
-            <div className="book-stack-layer-2"></div>
-            <div className="book-stack-layer-3"></div>
-            
-            <div className="page-spread">
-              <div className="page-left flex flex-col justify-between">
-                <div>
-                  <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">Matric Study Hub</span>
-                  <div className="w-16 h-2 bg-indigo-500/20 rounded mt-1"></div>
+        <div className="scene-container flex flex-col items-center space-y-12 z-10 px-4">
+          {/* Mobile par chota size aur desktop par original size */}
+          <div className="scale-[0.65] sm:scale-100 transition-transform">
+            <div className="open-book">
+              <div className="book-stack-layer-1"></div>
+              <div className="book-stack-layer-2"></div>
+              <div className="book-stack-layer-3"></div>
+              
+              <div className="page-spread">
+                <div className="page-left flex flex-col justify-between">
+                  <div>
+                    <span className="text-[10px] font-bold text-indigo-600 uppercase tracking-widest">Matric Study Hub</span>
+                    <div className="w-16 h-2 bg-indigo-500/20 rounded mt-1"></div>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="w-full h-1.5 bg-gray-300/60 rounded"></div>
+                    <div className="w-4/5 h-1.5 bg-gray-300/60 rounded"></div>
+                  </div>
                 </div>
-                <div className="space-y-2">
-                  <div className="w-full h-1.5 bg-gray-300/60 rounded"></div>
-                  <div className="w-4/5 h-1.5 bg-gray-300/60 rounded"></div>
+
+                <div className="book-spine-crease"></div>
+
+                <div className="page-right flex flex-col justify-between">
+                  <div>
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Syllabus Guide</span>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="w-full h-1.5 bg-gray-300/60 rounded"></div>
+                    <div className="w-3/4 h-1.5 bg-gray-300/60 rounded"></div>
+                  </div>
                 </div>
               </div>
 
-              <div className="book-spine-crease"></div>
+              <div className="flipping-sheet page-1">
+                <div className="sheet-face p-4 flex flex-col items-center justify-between text-center">
+                  <span className="text-[11px] font-extrabold text-indigo-600 tracking-wider">PHYSICS</span>
+                  <div className="p-3 bg-indigo-50 rounded-full border border-indigo-100 shadow-inner">
+                    <Atom className="w-7 h-7 text-indigo-600 animate-spin" style={{ animationDuration: '6s' }} />
+                  </div>
+                  <span className="text-[9px] text-gray-400">Forces & Motion</span>
+                </div>
+                <div className="sheet-back p-4 flex flex-col justify-between">
+                  <span className="text-[9px] font-bold text-gray-400 tracking-widest">CHAPTER 1 BACK</span>
+                  <div className="space-y-1.5">
+                    <div className="w-full h-1 bg-gray-300 rounded"></div>
+                    <div className="w-3/4 h-1 bg-gray-300 rounded"></div>
+                  </div>
+                </div>
+              </div>
 
-              <div className="page-right flex flex-col justify-between">
-                <div>
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Syllabus Guide</span>
+              <div className="flipping-sheet page-2">
+                <div className="sheet-face p-4 flex flex-col items-center justify-between text-center">
+                  <span className="text-[11px] font-extrabold text-emerald-600 tracking-wider">CHEMISTRY</span>
+                  <div className="p-3 bg-emerald-50 rounded-full border border-emerald-100 shadow-inner">
+                    <FlaskConical className="w-7 h-7 text-emerald-600 animate-bounce" />
+                  </div>
+                  <span className="text-[9px] text-gray-400">Elements & Reactions</span>
                 </div>
-                <div className="space-y-2">
-                  <div className="w-full h-1.5 bg-gray-300/60 rounded"></div>
-                  <div className="w-3/4 h-1.5 bg-gray-300/60 rounded"></div>
+                <div className="sheet-back p-4 flex flex-col justify-between">
+                  <span className="text-[9px] font-bold text-gray-400 tracking-widest">CHAPTER 2 BACK</span>
+                  <div className="space-y-1.5">
+                    <div className="w-full h-1 bg-gray-300 rounded"></div>
+                    <div className="w-4/5 h-1 bg-gray-300 rounded"></div>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="flipping-sheet page-1">
-              <div className="sheet-face p-4 flex flex-col items-center justify-between text-center">
-                <span className="text-[11px] font-extrabold text-indigo-600 tracking-wider">PHYSICS</span>
-                <div className="p-3 bg-indigo-50 rounded-full border border-indigo-100 shadow-inner">
-                  <Atom className="w-7 h-7 text-indigo-600 animate-spin" style={{ animationDuration: '6s' }} />
+              <div className="flipping-sheet page-3">
+                <div className="sheet-face p-4 flex flex-col items-center justify-between text-center">
+                  <span className="text-[11px] font-extrabold text-sky-600 tracking-wider">MATHEMATICS</span>
+                  <div className="p-3 bg-sky-50 rounded-full border border-sky-100 shadow-inner">
+                    <Calculator className="w-7 h-7 text-sky-600" />
+                  </div>
+                  <span className="text-[9px] text-gray-400">Algebra & Geometry</span>
                 </div>
-                <span className="text-[9px] text-gray-400">Forces & Motion</span>
-              </div>
-              <div className="sheet-back p-4 flex flex-col justify-between">
-                <span className="text-[9px] font-bold text-gray-400 tracking-widest">CHAPTER 1 BACK</span>
-                <div className="space-y-1.5">
-                  <div className="w-full h-1 bg-gray-300 rounded"></div>
-                  <div className="w-3/4 h-1 bg-gray-300 rounded"></div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flipping-sheet page-2">
-              <div className="sheet-face p-4 flex flex-col items-center justify-between text-center">
-                <span className="text-[11px] font-extrabold text-emerald-600 tracking-wider">CHEMISTRY</span>
-                <div className="p-3 bg-emerald-50 rounded-full border border-emerald-100 shadow-inner">
-                  <FlaskConical className="w-7 h-7 text-emerald-600 animate-bounce" />
-                </div>
-                <span className="text-[9px] text-gray-400">Elements & Reactions</span>
-              </div>
-              <div className="sheet-back p-4 flex flex-col justify-between">
-                <span className="text-[9px] font-bold text-gray-400 tracking-widest">CHAPTER 2 BACK</span>
-                <div className="space-y-1.5">
-                  <div className="w-full h-1 bg-gray-300 rounded"></div>
-                  <div className="w-4/5 h-1 bg-gray-300 rounded"></div>
-                </div>
-              </div>
-            </div>
-
-            <div className="flipping-sheet page-3">
-              <div className="sheet-face p-4 flex flex-col items-center justify-between text-center">
-                <span className="text-[11px] font-extrabold text-sky-600 tracking-wider">MATHEMATICS</span>
-                <div className="p-3 bg-sky-50 rounded-full border border-sky-100 shadow-inner">
-                  <Calculator className="w-7 h-7 text-sky-600" />
-                </div>
-                <span className="text-[9px] text-gray-400">Algebra & Geometry</span>
-              </div>
-              <div className="sheet-back p-4 flex flex-col justify-between">
-                <span className="text-[9px] font-bold text-gray-400 tracking-widest">CHAPTER 3 BACK</span>
-                <div className="space-y-1.5">
-                  <div className="w-full h-1 bg-gray-300 rounded"></div>
-                  <div className="w-2/3 h-1 bg-gray-300 rounded"></div>
+                <div className="sheet-back p-4 flex flex-col justify-between">
+                  <span className="text-[9px] font-bold text-gray-400 tracking-widest">CHAPTER 3 BACK</span>
+                  <div className="space-y-1.5">
+                    <div className="w-full h-1 bg-gray-300 rounded"></div>
+                    <div className="w-2/3 h-1 bg-gray-300 rounded"></div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <div className="text-center space-y-2 z-10">
+          <div className="text-center space-y-2 z-10 -mt-4 sm:mt-0">
             <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-slate-900/90 border border-indigo-500/30 text-indigo-300 text-xs shadow-xl">
               <Sparkles className="w-3.5 h-3.5 text-indigo-400 animate-spin" />
               <span>Loading Study Planing...</span>
@@ -480,7 +483,6 @@ export default function AuthPage() {
   return (
     <div className="flex min-h-screen items-center justify-center relative overflow-hidden transition-opacity duration-1000 animate-fadeIn py-6 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-100 via-[#cbd5e1] to-[#94a3b8] text-slate-900">
       
-      {/* Inline styles for simple fade-in animation */}
       <style jsx>{`
         @keyframes fadeIn {
           from {
@@ -497,7 +499,6 @@ export default function AuthPage() {
         }
       `}</style>
 
-      {/* Soft light waves background feel */}
       <div className="absolute inset-0 pointer-events-none opacity-40 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
 
       <div className="w-full max-w-sm p-5 space-y-4 rounded-2xl border z-10 transition-all duration-300 bg-[#f8fafc] border-cyan-400 shadow-[0_0_55px_rgba(6,182,212,0.7),0_25px_60px_rgba(0,0,0,0.4)] text-slate-900">
