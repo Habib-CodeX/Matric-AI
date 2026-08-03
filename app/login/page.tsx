@@ -23,23 +23,6 @@ export default function AuthPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const checkTheme = () => {
-      const savedTheme = localStorage.getItem('theme')
-      if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark')
-      } else {
-        document.documentElement.classList.remove('dark')
-      }
-    }
-
-    checkTheme()
-    window.addEventListener('storage', checkTheme)
-    
-    const handleThemeChange = () => {
-      checkTheme()
-    }
-    window.addEventListener('themeChanged', handleThemeChange)
-
     const fadeTimer = setTimeout(() => {
       setFadeTransition(true)
     }, 4500)
@@ -49,8 +32,6 @@ export default function AuthPage() {
     }, 5300)
 
     return () => {
-      window.removeEventListener('storage', checkTheme)
-      window.removeEventListener('themeChanged', handleThemeChange)
       clearTimeout(fadeTimer)
       clearTimeout(finishTimer)
     }
@@ -254,9 +235,9 @@ export default function AuthPage() {
 
   if (pageLoading) {
     return (
-      <div className={`flex items-center justify-center min-h-screen bg-slate-50 dark:bg-[#060913] overflow-hidden relative select-none transition-opacity duration-1000 ${fadeTransition ? 'opacity-0' : 'opacity-100'}`}>
+      <div className={`flex items-center justify-center min-h-screen bg-[#060913] overflow-hidden relative select-none transition-opacity duration-1000 ${fadeTransition ? 'opacity-0' : 'opacity-100'}`}>
         
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-indigo-100 via-slate-50 to-slate-50 dark:from-indigo-950/40 dark:via-[#060913] dark:to-[#060913]"></div>
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-indigo-950/40 via-[#060913] to-[#060913]"></div>
         <div className="absolute w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[150px] pointer-events-none animate-pulse"></div>
 
         <style jsx>{`
@@ -276,15 +257,6 @@ export default function AuthPage() {
           @keyframes floatStack {
             0%, 100% { transform: rotateX(24deg) rotateY(-16deg) rotateZ(2deg) translateY(0); }
             50% { transform: rotateX(20deg) rotateY(-12deg) rotateZ(0deg) translateY(-8px); }
-          }
-
-          .book-base {
-            position: absolute;
-            inset: 0;
-            background: #0f172a;
-            border-radius: 8px;
-            box-shadow: 0 50px 90px rgba(0,0,0,0.95);
-            transform: translateZ(-28px);
           }
 
           .book-stack-layer-1 {
@@ -410,7 +382,6 @@ export default function AuthPage() {
 
         <div className="scene-container flex flex-col items-center space-y-12 z-10">
           <div className="open-book">
-            <div className="book-base"></div>
             <div className="book-stack-layer-1"></div>
             <div className="book-stack-layer-2"></div>
             <div className="book-stack-layer-3"></div>
@@ -493,11 +464,11 @@ export default function AuthPage() {
           </div>
 
           <div className="text-center space-y-2 z-10">
-            <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-white/80 dark:bg-slate-900/90 border border-slate-200 dark:border-indigo-500/30 text-slate-700 dark:text-indigo-300 text-xs shadow-xl">
-              <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 animate-spin" />
+            <div className="inline-flex items-center space-x-2 px-4 py-1.5 rounded-full bg-slate-900/90 border border-indigo-500/30 text-indigo-300 text-xs shadow-xl">
+              <Sparkles className="w-3.5 h-3.5 text-indigo-400 animate-spin" />
               <span>Loading Study Planing...</span>
             </div>
-            <h2 className="text-xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-slate-800 via-indigo-600 to-slate-900 dark:from-indigo-300 dark:via-white dark:to-indigo-400">
+            <h2 className="text-xl font-extrabold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-indigo-300 via-white to-indigo-400">
               Preparing Portal Environment
             </h2>
           </div>
@@ -507,29 +478,47 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center relative overflow-hidden transition-opacity duration-1000 opacity-100 py-6 bg-slate-50 text-slate-900 dark:bg-[#02060c] dark:text-white">
+    <div className="flex min-h-screen items-center justify-center relative overflow-hidden transition-opacity duration-1000 animate-fadeIn py-6 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-100 via-[#cbd5e1] to-[#94a3b8] text-slate-900">
       
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-cyan-100/50 via-slate-50 to-slate-50 dark:from-cyan-950/20 dark:via-[#02060c] dark:to-[#02060c]"></div>
+      {/* Inline styles for simple fade-in animation */}
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: scale(0.98);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.8s ease-out forwards;
+        }
+      `}</style>
 
-      <div className="w-full max-w-sm p-5 space-y-4 rounded-2xl border z-10 transition-all duration-300 bg-white border-slate-200 shadow-xl dark:bg-[#0b1326] dark:border-cyan-500/40 dark:shadow-[0_0_50px_rgba(6,182,212,0.25),0_25px_60px_rgba(0,0,0,0.95)] text-slate-900 dark:text-white">
+      {/* Soft light waves background feel */}
+      <div className="absolute inset-0 pointer-events-none opacity-40 bg-[radial-gradient(circle_at_top_right,_var(--tw-gradient-stops))] from-white via-transparent to-transparent"></div>
+
+      <div className="w-full max-w-sm p-5 space-y-4 rounded-2xl border z-10 transition-all duration-300 bg-[#f8fafc] border-cyan-400 shadow-[0_0_55px_rgba(6,182,212,0.7),0_25px_60px_rgba(0,0,0,0.4)] text-slate-900">
         
         <div className="flex flex-col items-center space-y-1 pt-1">
-          <div className="p-2.5 border rounded-xl shadow-inner bg-cyan-50 border-cyan-100 text-cyan-600 dark:bg-cyan-500/10 dark:border-cyan-500/20 dark:text-cyan-400">
+          <div className="p-2.5 border rounded-xl shadow-inner bg-cyan-100 border-cyan-300 text-cyan-700">
             <BookOpen size={22} />
           </div>
-          <h2 className="text-lg font-bold text-center text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-cyan-700 dark:from-cyan-200 dark:to-white">
+          <h2 className="text-lg font-bold text-center text-slate-900">
             {isLogin ? 'Welcome To (Matric AI)' : 'Create Matric Account'}
           </h2>
         </div>
 
-        <div className="p-1 rounded-xl border max-w-[240px] mx-auto flex bg-slate-100 border-slate-200 dark:bg-[#060b18] dark:border-cyan-500/20">
+        <div className="p-1 rounded-xl border max-w-[240px] mx-auto flex bg-slate-200 border-cyan-300">
           <button
             type="button"
             onClick={() => { setIsLogin(true); setError(''); setValidated(false); }}
             className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all duration-300 ${
               isLogin 
-                ? 'bg-cyan-500 text-white dark:text-slate-950 shadow-md shadow-cyan-500/30 font-bold' 
-                : 'text-slate-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-200'
+                ? 'bg-cyan-500 text-white shadow-md shadow-cyan-500/30 font-bold' 
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             Login
@@ -539,30 +528,30 @@ export default function AuthPage() {
             onClick={() => { setIsLogin(false); setError(''); setValidated(false); }}
             className={`flex-1 py-1.5 text-xs font-semibold rounded-lg transition-all duration-300 ${
               !isLogin 
-                ? 'bg-cyan-500 text-white dark:text-slate-950 shadow-md shadow-cyan-500/30 font-bold' 
-                : 'text-slate-600 dark:text-gray-400 hover:text-cyan-600 dark:hover:text-cyan-200'
+                ? 'bg-cyan-500 text-white shadow-md shadow-cyan-500/30 font-bold' 
+                : 'text-slate-600 hover:text-slate-900'
             }`}
           >
             Register
           </button>
         </div>
 
-        {error && <p className="text-rose-500 dark:text-rose-400 text-xs text-center bg-rose-50 dark:bg-rose-950/60 p-2 rounded-xl border border-rose-200 dark:border-rose-900/60">{error}</p>}
+        {error && <p className="text-rose-600 text-xs text-center bg-rose-50 p-2 rounded-xl border border-rose-200">{error}</p>}
 
         <form onSubmit={handleAuth} className="space-y-3">
           {isLogin ? (
             <div>
-              <label className="block text-[11px] font-medium mb-1 text-slate-700 dark:text-cyan-200/80">Email or Username</label>
+              <label className="block text-[11px] font-medium mb-1 text-slate-700">Email or Username</label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-cyan-600 dark:text-cyan-400/60">
+                <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-cyan-700">
                   <Mail size={15} />
                 </span>
                 <input
                   type="text"
                   value={identifier}
                   onChange={(e) => setIdentifier(e.target.value)}
-                  className={`w-full pl-9 pr-3 py-2 border rounded-xl outline-none transition-all text-xs shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)] bg-slate-50 dark:bg-[#060b18] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-gray-500 ${
-                    validated && !identifier ? 'border-rose-500' : 'border-slate-200 dark:border-cyan-500/30'
+                  className={`w-full pl-9 pr-3 py-2 border rounded-xl outline-none transition-all text-xs shadow-[0_4px_14px_rgba(0,0,0,0.5)] bg-white text-slate-900 placeholder:text-slate-400 ${
+                    validated && !identifier ? 'border-rose-500' : 'border-cyan-300 focus:border-cyan-500'
                   }`}
                   placeholder="student@gmail.com / username"
                 />
@@ -572,17 +561,17 @@ export default function AuthPage() {
             <>
               <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-[11px] font-medium mb-1 text-slate-700 dark:text-cyan-200/80">Full Name</label>
+                  <label className="block text-[11px] font-medium mb-1 text-slate-700">Full Name</label>
                   <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center text-cyan-600 dark:text-cyan-400/60">
+                    <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center text-cyan-700">
                       <User size={14} />
                     </span>
                     <input
                       type="text"
                       value={name}
                       onChange={(e) => setName(e.target.value)}
-                      className={`w-full pl-8 pr-2.5 py-1.5 border rounded-xl outline-none transition-all text-xs shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)] bg-slate-50 dark:bg-[#060b18] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-gray-500 ${
-                        validated && !name ? 'border-rose-500' : 'border-slate-200 dark:border-cyan-500/30'
+                      className={`w-full pl-8 pr-2.5 py-1.5 border rounded-xl outline-none transition-all text-xs shadow-[0_4px_14px_rgba(0,0,0,0.5)] bg-white text-slate-900 placeholder:text-slate-400 ${
+                        validated && !name ? 'border-rose-500' : 'border-cyan-300 focus:border-cyan-500'
                       }`}
                       placeholder="Name..."
                     />
@@ -590,17 +579,17 @@ export default function AuthPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-medium mb-1 text-slate-700 dark:text-cyan-200/80">Username</label>
+                  <label className="block text-[11px] font-medium mb-1 text-slate-700">Username</label>
                   <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center text-cyan-600 dark:text-cyan-400/60">
+                    <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center text-cyan-700">
                       <AtSign size={14} />
                     </span>
                     <input
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      className={`w-full pl-8 pr-2.5 py-1.5 border rounded-xl outline-none transition-all text-xs shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)] bg-slate-50 dark:bg-[#060b18] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-gray-500 ${
-                        validated && !username ? 'border-rose-500' : 'border-slate-200 dark:border-cyan-500/30'
+                      className={`w-full pl-8 pr-2.5 py-1.5 border rounded-xl outline-none transition-all text-xs shadow-[0_4px_14px_rgba(0,0,0,0.5)] bg-white text-slate-900 placeholder:text-slate-400 ${
+                        validated && !username ? 'border-rose-500' : 'border-cyan-300 focus:border-cyan-500'
                       }`}
                       placeholder="username..."
                     />
@@ -610,17 +599,17 @@ export default function AuthPage() {
 
               <div className="grid grid-cols-2 gap-2.5">
                 <div>
-                  <label className="block text-[11px] font-medium mb-1 text-slate-700 dark:text-cyan-200/80">Age</label>
+                  <label className="block text-[11px] font-medium mb-1 text-slate-700">Age</label>
                   <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center text-cyan-600 dark:text-cyan-400/60">
+                    <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center text-cyan-700">
                       <Calendar size={14} />
                     </span>
                     <input
                       type="number"
                       value={age}
                       onChange={(e) => setAge(e.target.value)}
-                      className={`w-full pl-8 pr-2.5 py-1.5 border rounded-xl outline-none transition-all text-xs shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)] bg-slate-50 dark:bg-[#060b18] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-gray-500 ${
-                        validated && !age ? 'border-rose-500' : 'border-slate-200 dark:border-cyan-500/30'
+                      className={`w-full pl-8 pr-2.5 py-1.5 border rounded-xl outline-none transition-all text-xs shadow-[0_4px_14px_rgba(0,0,0,0.5)] bg-white text-slate-900 placeholder:text-slate-400 ${
+                        validated && !age ? 'border-rose-500' : 'border-cyan-300 focus:border-cyan-500'
                       }`}
                       placeholder="16"
                     />
@@ -628,40 +617,40 @@ export default function AuthPage() {
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-medium mb-1 text-slate-700 dark:text-cyan-200/80">Gender</label>
+                  <label className="block text-[11px] font-medium mb-1 text-slate-700">Gender</label>
                   <div className="relative">
-                    <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center text-cyan-600 dark:text-cyan-400/60">
+                    <span className="absolute inset-y-0 left-0 pl-2.5 flex items-center text-cyan-700">
                       <Users size={14} />
                     </span>
                     <select
                       value={gender}
                       onChange={(e) => setGender(e.target.value)}
-                      className="w-full pl-8 pr-2.5 py-1.5 border rounded-xl outline-none transition-all text-xs appearance-none shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)] bg-slate-50 border-slate-200 text-slate-900 dark:bg-[#060b18] dark:border-cyan-500/30 dark:text-white"
+                      className="w-full pl-8 pr-2.5 py-1.5 border rounded-xl outline-none transition-all text-xs appearance-none shadow-[0_4px_14px_rgba(0,0,0,0.5)] bg-white border-cyan-300 text-slate-900 focus:border-cyan-500"
                     >
-                      <option value="Male" className="bg-white dark:bg-[#060b18]">Male</option>
-                      <option value="Female" className="bg-white dark:bg-[#060b18]">Female</option>
-                      <option value="Other" className="bg-white dark:bg-[#060b18]">Other</option>
+                      <option value="Male" className="bg-white">Male</option>
+                      <option value="Female" className="bg-white">Female</option>
+                      <option value="Other" className="bg-white">Other</option>
                     </select>
                   </div>
                 </div>
               </div>
 
               <div>
-                <label className="block text-[11px] font-medium mb-1 text-slate-700 dark:text-cyan-200/80">Email</label>
+                <label className="block text-[11px] font-medium mb-1 text-slate-700">Email</label>
                 <div className="relative flex items-center">
-                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-cyan-600 dark:text-cyan-400/60">
+                  <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-cyan-700">
                     <Mail size={15} />
                   </span>
                   <input
                     type="text"
                     value={emailPrefix}
                     onChange={(e) => setEmailPrefix(e.target.value)}
-                    className={`w-full pl-9 pr-[88px] py-2 border rounded-xl outline-none transition-all text-xs shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)] bg-slate-50 dark:bg-[#060b18] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-gray-500 ${
-                      validated && !emailPrefix ? 'border-rose-500' : 'border-slate-200 dark:border-cyan-500/30'
+                    className={`w-full pl-9 pr-[88px] py-2 border rounded-xl outline-none transition-all text-xs shadow-[0_4px_14px_rgba(0,0,0,0.5)] bg-white text-slate-900 placeholder:text-slate-400 ${
+                      validated && !emailPrefix ? 'border-rose-500' : 'border-cyan-300 focus:border-cyan-500'
                     }`}
                     placeholder="student"
                   />
-                  <span className="absolute right-3 text-xs font-medium pointer-events-none select-none text-slate-500 dark:text-cyan-400/60">
+                  <span className="absolute right-3 text-xs font-medium pointer-events-none select-none text-slate-500">
                     @gmail.com
                   </span>
                 </div>
@@ -670,17 +659,17 @@ export default function AuthPage() {
           )}
 
           <div>
-            <label className="block text-[11px] font-medium mb-1 text-slate-700 dark:text-cyan-200/80">Password</label>
+            <label className="block text-[11px] font-medium mb-1 text-slate-700">Password</label>
             <div className="relative">
-              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-cyan-600 dark:text-cyan-400/60">
+              <span className="absolute inset-y-0 left-0 pl-3 flex items-center text-cyan-700">
                 <Lock size={15} />
               </span>
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className={`w-full pl-9 pr-3 py-2 border rounded-xl outline-none transition-all text-xs shadow-[inset_0_2px_4px_rgba(0,0,0,0.06)] bg-slate-50 dark:bg-[#060b18] text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-gray-500 ${
-                  validated && !password ? 'border-rose-500' : 'border-slate-200 dark:border-cyan-500/30'
+                className={`w-full pl-9 pr-3 py-2 border rounded-xl outline-none transition-all text-xs shadow-[0_4px_14px_rgba(0,0,0,0.5)] bg-white text-slate-900 placeholder:text-slate-400 ${
+                  validated && !password ? 'border-rose-500' : 'border-cyan-300 focus:border-cyan-500'
                 }`}
                 placeholder="••••••••"
               />
@@ -691,11 +680,11 @@ export default function AuthPage() {
             <button
               type="submit"
               disabled={loading}
-              className="py-1.5 px-6 bg-cyan-500 hover:bg-cyan-400 text-white dark:text-slate-950 rounded-xl font-bold transition-all duration-200 shadow-md shadow-cyan-500/30 flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-75 text-xs"
+              className="py-1.5 px-6 bg-cyan-500 hover:bg-cyan-600 text-white rounded-xl font-bold transition-all duration-200 shadow-md shadow-cyan-500/30 flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-75 text-xs"
             >
               {loading ? (
                 <div className="flex items-center justify-center space-x-2">
-                  <Loader2 className="w-3.5 h-3.5 animate-spin text-white dark:text-slate-950" />
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
                   <span className="tracking-wide text-[11px] font-bold">verifing...</span>
                 </div>
               ) : (
@@ -705,18 +694,18 @@ export default function AuthPage() {
           </div>
         </form>
 
-        <div className="mt-4 pt-3 border-t border-slate-200 dark:border-cyan-500/20">
+        <div className="mt-4 pt-3 border-t border-slate-200">
           <div className="relative flex py-1 items-center">
-            <div className="flex-grow border-t border-slate-200 dark:border-cyan-500/20"></div>
-            <span className="flex-shrink mx-2 text-[10px] uppercase tracking-wider text-slate-500 dark:text-cyan-400/60">or sign in with</span>
-            <div className="flex-grow border-t border-slate-200 dark:border-cyan-500/20"></div>
+            <div className="flex-grow border-t border-slate-200"></div>
+            <span className="flex-shrink mx-2 text-[10px] uppercase tracking-wider text-slate-500">or sign in with</span>
+            <div className="flex-grow border-t border-slate-200"></div>
           </div>
 
           <div className="flex justify-center items-center gap-3 mt-3">
             <button
               type="button"
               onClick={() => handleSocialLogin('google')}
-              className="w-9 h-9 rounded-full border flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-md bg-slate-50 border-slate-200 hover:bg-slate-100 dark:bg-[#060b18] dark:border-cyan-500/30 dark:hover:bg-cyan-500/10"
+              className="w-9 h-9 rounded-full border flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-md bg-white border-cyan-300 hover:bg-cyan-50"
               title="Sign in with Google"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24">
@@ -730,7 +719,7 @@ export default function AuthPage() {
             <button
               type="button"
               onClick={() => handleSocialLogin('facebook')}
-              className="w-9 h-9 rounded-full border flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-md bg-slate-50 border-slate-200 hover:bg-slate-100 dark:bg-[#060b18] dark:border-cyan-500/30 dark:hover:bg-cyan-500/10"
+              className="w-9 h-9 rounded-full border flex items-center justify-center transition-all duration-300 hover:scale-110 shadow-md bg-white border-cyan-300 hover:bg-cyan-50"
               title="Sign in with Facebook"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="#1877F2">
