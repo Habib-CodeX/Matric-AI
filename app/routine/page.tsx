@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useRouter } from 'next/navigation'
 import { 
-  Calendar, ArrowLeft, Sparkles, Loader2, BookOpen, Clock, CheckCircle, Save, CheckSquare, Square, ArrowRight, Trash2
+  Calendar, ArrowLeft, Sparkles, Loader2, BookOpen, Clock, CheckCircle, Save, CheckSquare, Square, ArrowRight, Trash2, AlertCircle
 } from 'lucide-react'
 
 export default function RoutineWizardPage() {
@@ -12,16 +12,17 @@ export default function RoutineWizardPage() {
   const [loading, setLoading] = useState(true)
   const [step, setStep] = useState(1)
 
-  const [selectedGrade, setSelectedGrade] = useState<string>('9th')
-  const [studyGroup, setStudyGroup] = useState<'science' | 'arts'>('science')
+  const [selectedGrade, setSelectedGrade] = useState<string>('10th Grade')
+  const [studyGroup, setStudyGroup] = useState<string>('Science')
 
+  const [activeSubjects, setActiveSubjects] = useState<string[]>([])
   const [allSubjects, setAllSubjects] = useState<any[]>([])
   const [allChapters, setAllChapters] = useState<any[]>([])
   const [allTopics, setAllTopics] = useState<any[]>([])
 
-  const [selectedSubjectIds, setSelectedSubjectIds] = useState<string[]>([])
-  const [selectedChapterIds, setSelectedChapterIds] = useState<any[]>([])
-  const [selectedTopicIds, setSelectedTopicIds] = useState<any[]>([])
+  const [selectedSubjectNames, setSelectedSubjectNames] = useState<string[]>([])
+  const [selectedChapterTitles, setSelectedChapterTitles] = useState<string[]>([])
+  const [selectedTopicIds, setSelectedTopicIds] = useState<string[]>([])
 
   const [targetDate, setTargetDate] = useState('')
   const [dailyHours, setDailyHours] = useState('4')
@@ -30,6 +31,7 @@ export default function RoutineWizardPage() {
   const [routine, setRoutine] = useState<any[] | null>(null)
   const [routineStartDate, setRoutineStartDate] = useState<string>('')
   const [message, setMessage] = useState('')
+  const [errorMessage, setErrorMessage] = useState('')
 
   const router = useRouter()
 
@@ -68,6 +70,29 @@ export default function RoutineWizardPage() {
       }
       setUser(session.user)
 
+      const { data: profile } = await supabase
+        .from('student_profiles')
+        .select('*')
+        .eq('id', session.user.id)
+        .maybeSingle()
+
+      const currentGrade = profile?.grade || '10th Grade'
+      const currentGroup = profile?.study_group || 'Science'
+      const currentSubjects = profile?.subjects && profile.subjects.length > 0 
+        ? profile.subjects 
+        : ['English', 'Urdu', 'Mathematics', 'Physics', 'Chemistry', 'Biology']
+
+      setSelectedGrade(currentGrade)
+      setStudyGroup(currentGroup)
+      setActiveSubjects(currentSubjects)
+      setSelectedSubjectNames(currentSubjects)
+
+      const formattedSubjects = currentSubjects.map((subName: string, idx: number) => ({
+        id: idx + 1,
+        name: subName
+      }))
+      setAllSubjects(formattedSubjects)
+
       const { data: existingRoutine } = await supabase
         .from('study_routines')
         .select('*')
@@ -105,185 +130,127 @@ export default function RoutineWizardPage() {
     initWizard()
   }, [router])
 
-  const fetchSubjectsByGradeAndGroup = async (grade: string, group: 'science' | 'arts') => {
-    setLoading(true)
-    const { data: subjectsData, error } = await supabase
-      .from('subjects')
-      .select('*')
-      .eq('grade', grade)
-
-    if (error) console.error('Error fetching subjects:', error.message)
-
-    let rawSubjects = []
-
-    if (subjectsData && subjectsData.length > 0) {
-      const filtered = subjectsData.filter(sub => {
-        const name = sub.name.toLowerCase()
-        if (grade === '9th' || grade === '10th') {
-          if (group === 'science') {
-            return !['general mathematics', 'general science', 'civics', 'education', 'economics'].includes(name)
-          } else {
-            return !['physics', 'chemistry', 'biology'].includes(name)
-          }
-        }
-        return true
-      })
-      rawSubjects = filtered.length > 0 ? filtered : subjectsData
-    } else {
-      if (grade === '9th' || grade === '10th') {
-        if (group === 'science') {
-          rawSubjects = [
-            { id: grade === '9th' ? 1 : 201, name: 'Mathematics' },
-            { id: grade === '9th' ? 2 : 202, name: 'Physics' },
-            { id: grade === '9th' ? 3 : 203, name: 'Chemistry' },
-            { id: grade === '9th' ? 4 : 204, name: 'Biology' },
-            { id: grade === '9th' ? 5 : 205, name: 'English' },
-            { id: grade === '9th' ? 6 : 206, name: 'Urdu' },
-            { id: grade === '9th' ? 7 : 207, name: 'Islamiyat' },
-            { id: grade === '9th' ? 8 : 208, name: 'Computer Science' }
-          ]
-        } else {
-          rawSubjects = [
-            { id: grade === '9th' ? 101 : 301, name: 'General Mathematics' },
-            { id: grade === '9th' ? 102 : 302, name: 'General Science' },
-            { id: grade === '9th' ? 103 : 303, name: 'English' },
-            { id: grade === '9th' ? 104 : 304, name: 'Urdu' },
-            { id: grade === '9th' ? 105 : 305, name: 'Islamiyat' },
-            { id: grade === '9th' ? 106 : 306, name: 'Pakistan Studies' },
-            { id: grade === '9th' ? 107 : 307, name: 'Civics' },
-            { id: grade === '9th' ? 108 : 308, name: 'Education' },
-            { id: grade === '9th' ? 109 : 309, name: 'Economics' }
-          ]
-        }
-      }
-    }
-
-    const uniqueSubjects = Array.from(
-      new Map(rawSubjects.map(item => [item.name.toLowerCase().trim(), item])).values()
-    )
-
-    setAllSubjects(uniqueSubjects)
-    setLoading(false)
-  }
-  const handleGradeChange = (grade: string) => {
-    setSelectedGrade(grade)
-    setSelectedSubjectIds([])
-    setSelectedChapterIds([])
-    setSelectedTopicIds([])
-  }
-
-  const handleGroupChange = (group: 'science' | 'arts') => {
-    setStudyGroup(group)
-    setSelectedSubjectIds([])
-    setSelectedChapterIds([])
-    setSelectedTopicIds([])
-  }
-
-  useEffect(() => {
-    if (step === 1) {
-      fetchSubjectsByGradeAndGroup(selectedGrade, studyGroup)
-    }
-  }, [selectedGrade, studyGroup, step])
-
-  const toggleSubject = (id: any) => {
-    setSelectedSubjectIds(prev => 
-      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+  const toggleSubject = (subName: string) => {
+    setSelectedSubjectNames(prev => 
+      prev.includes(subName) ? prev.filter(item => item !== subName) : [...prev, subName]
     )
   }
 
   const handleNextToChapters = async () => {
     setLoading(true)
-    const targetIds = selectedSubjectIds.length > 0 ? selectedSubjectIds : allSubjects.map(s => s.id)
-    const { data } = await supabase.from('chapters').select('*').in('subject_id', targetIds)
+    const targetSubs = selectedSubjectNames.length > 0 ? selectedSubjectNames : activeSubjects
 
-    let loadedChapters = data && data.length > 0 ? data : []
-    
-    targetIds.forEach((subId) => {
-      const exists = loadedChapters.some(ch => String(ch.subject_id) === String(subId))
-      if (!exists) {
-        const subObj = allSubjects.find(s => String(s.id) === String(subId))
-        const subName = subObj ? subNameCheck(subObj.name) : 'Subject'
+    const { data: syllabusData, error } = await supabase
+      .from('punjab_board_syllabus')
+      .select('subject, chapter_title')
+      .eq('class_level', selectedGrade)
+      .eq('group_type', studyGroup)
+      .in('subject', targetSubs)
 
+    let loadedChapters: any[] = []
+    if (!error && syllabusData && syllabusData.length > 0) {
+      const seen = new Set()
+      syllabusData.forEach((row: any) => {
+        const key = `${row.subject}_${row.chapter_title}`
+        if (!seen.has(key)) {
+          seen.add(key)
+          loadedChapters.push({
+            id: `${row.subject}-${row.chapter_title}`,
+            subject: row.subject,
+            title: row.chapter_title
+          })
+        }
+      })
+    }
+
+    targetSubs.forEach((subj: string) => {
+      const hasChapters = loadedChapters.some(ch => ch.subject === subj)
+      if (!hasChapters) {
         loadedChapters.push(
-          { id: Number(String(subId) + '01'), chapter_number: 1, title: `${subName} - Chapter 1: Fundamentals`, subject_id: subId },
-          { id: Number(String(subId) + '02'), chapter_number: 2, title: `${subName} - Chapter 2: Core Concepts`, subject_id: subId }
+          { id: `${subj}-Chapter 1`, subject: subj, title: `Chapter 1: Introduction to ${subj}` },
+          { id: `${subj}-Chapter 2`, subject: subj, title: `Chapter 2: Core Concepts` }
         )
       }
     })
 
-    const formattedChapters = loadedChapters.map(ch => ({
-      ...ch,
-      title: ch.chapter_name || ch.title
-    }))
-
-    setAllChapters(formattedChapters)
+    setAllChapters(loadedChapters)
     setLoading(false)
     setStep(2)
   }
 
-  const subNameCheck = (name: string) => {
-    if (name.toLowerCase().includes('pak')) return 'Pak Studies'
-    if (name.toLowerCase().includes('computer')) return 'Computer'
-    if (name.toLowerCase().includes('math')) return 'Math'
-    if (name.toLowerCase().includes('physics')) return 'Physics'
-    if (name.toLowerCase().includes('chemistry')) return 'Chemistry'
-    if (name.toLowerCase().includes('biology')) return 'Biology'
-    if (name.toLowerCase().includes('english')) return 'English'
-    if (name.toLowerCase().includes('urdu')) return 'Urdu'
-    if (name.toLowerCase().includes('islamiyat')) return 'Islamiyat'
-    return name
-  }
-
-  const toggleChapter = (id: any) => {
-    setSelectedChapterIds(prev => 
-      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+  const toggleChapter = (chapTitle: string) => {
+    setSelectedChapterTitles(prev => 
+      prev.includes(chapTitle) ? prev.filter(item => item !== chapTitle) : [...prev, chapTitle]
     )
   }
 
   const handleNextToTopics = async () => {
     setLoading(true)
-    const targetChapterIds = selectedChapterIds.length > 0 ? selectedChapterIds : allChapters.map(c => c.id)
-    const { data } = await supabase.from('topics').select('*').in('chapter_id', targetChapterIds)
+    const targetChapters = selectedChapterTitles.length > 0 ? selectedChapterTitles : allChapters.map(c => c.title)
 
-    let loadedTopics = data && data.length > 0 ? data : []
-    targetChapterIds.forEach((chId) => {
-      const exists = loadedTopics.some(top => String(top.chapter_id) === String(chId))
-      if (!exists) {
+    const { data: syllabusData, error } = await supabase
+      .from('punjab_board_syllabus')
+      .select('chapter_title, topic_title')
+      .eq('class_level', selectedGrade)
+      .eq('group_type', studyGroup)
+      .in('chapter_title', targetChapters)
+
+    let loadedTopics: any[] = []
+    if (!error && syllabusData && syllabusData.length > 0) {
+      const seen = new Set()
+      syllabusData.forEach((row: any) => {
+        if (row.topic_title) {
+          const key = `${row.chapter_title}_${row.topic_title}`
+          if (!seen.has(key)) {
+            seen.add(key)
+            loadedTopics.push({
+              id: `${row.chapter_title}-${row.topic_title}`,
+              chapter_title: row.chapter_title,
+              title: row.topic_title
+            })
+          }
+        }
+      })
+    }
+
+    targetChapters.forEach((chTitle: string) => {
+      const hasTopics = loadedTopics.some(t => t.chapter_title === chTitle)
+      if (!hasTopics) {
         loadedTopics.push(
-          { id: Number(String(chId) + '1'), title: 'Topic 1: Introduction & Key Definitions', chapter_id: chId },
-          { id: Number(String(chId) + '2'), title: 'Topic 2: Important Derivations & Numericals', chapter_id: chId },
-          { id: Number(String(chId) + '3'), title: 'Topic 3: Exercise Questions & Past Papers', chapter_id: chId }
+          { id: `${chTitle}-Topic 1`, chapter_title: chTitle, title: 'Topic 1: Introduction & Definitions' },
+          { id: `${chTitle}-Topic 2`, chapter_title: chTitle, title: 'Topic 2: Important Derivations & Numericals' },
+          { id: `${chTitle}-Topic 3`, chapter_title: chTitle, title: 'Topic 3: Exercise Questions & Past Papers' }
         )
       }
     })
 
     setAllTopics(loadedTopics)
+    setSelectedTopicIds(loadedTopics.map(t => t.id))
     setLoading(false)
     setStep(3)
   }
 
-  const toggleTopic = (id: any) => {
+  const toggleTopic = (topicId: string) => {
     setSelectedTopicIds(prev => 
-      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+      prev.includes(topicId) ? prev.filter(item => item !== topicId) : [...prev, topicId]
     )
   }
 
   const generateFinalRoutine = async () => {
-    const chosenTopicsList = selectedTopicIds.length > 0 
-      ? allTopics.filter(t => selectedTopicIds.includes(t.id))
-      : allTopics
-
-    if (chosenTopicsList.length === 0) {
-      alert('Please select at least one topic!')
+    if (!targetDate || !dailyHours || selectedTopicIds.length === 0) {
+      setErrorMessage('Please select Target Date, Daily Hours, and at least one Topic before proceeding!')
       return
     }
+
+    setErrorMessage('')
+    const chosenTopicsList = allTopics.filter(t => selectedTopicIds.includes(t.id))
 
     setGenerating(true)
     setMessage('')
 
     try {
-     const response = await fetch('/api/generate-routine', {
-            method: 'POST',
+      const response = await fetch('/api/generate-routine', {
+        method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           grade: selectedGrade,
@@ -294,20 +261,34 @@ export default function RoutineWizardPage() {
       })
 
       const data = await response.json()
+      let finalGeneratedRoutine = null
+
       if (response.ok && data.routine) {
-        const initializedRoutine = data.routine.map((dayItem: any) => ({
+        finalGeneratedRoutine = data.routine.map((dayItem: any) => ({
           ...dayItem,
           slots: dayItem.slots.map((slot: any) => ({ ...slot, completed: false }))
         }))
-        setRoutine(initializedRoutine)
       } else {
         throw new Error(data.error || 'Failed to generate AI routine')
       }
 
       const currentDateStr = new Date().toISOString().split('T')[0]
       setRoutineStartDate(currentDateStr)
+      setRoutine(finalGeneratedRoutine)
       setGenerating(false)
       setStep(4)
+
+      if (user && finalGeneratedRoutine) {
+        await supabase
+          .from('study_routines')
+          .upsert({
+            user_id: user.id,
+            routine_content: finalGeneratedRoutine,
+            start_date: currentDateStr,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'user_id' })
+      }
+
     } catch (error) {
       console.error('AI Generation Error, falling back:', error)
       const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
@@ -335,6 +316,17 @@ export default function RoutineWizardPage() {
       setRoutine(generated)
       setGenerating(false)
       setStep(4)
+
+      if (user) {
+        await supabase
+          .from('study_routines')
+          .upsert({
+            user_id: user.id,
+            routine_content: generated,
+            start_date: currentDateStr,
+            updated_at: new Date().toISOString()
+          }, { onConflict: 'user_id' })
+      }
     }
   }
 
@@ -364,25 +356,32 @@ export default function RoutineWizardPage() {
   }
 
   const saveRoutineToDatabase = async () => {
-    if (!routine) return
+    if (!routine || !user) return
     setSaving(true)
     setMessage('')
 
-    const { error } = await supabase
-      .from('study_routines')
-      .upsert({
-        user_id: user.id,
-        routine_content: routine,
-        start_date: routineStartDate || new Date().toISOString().split('T')[0],
-        updated_at: new Date().toISOString()
-      }, { onConflict: 'user_id' })
+    try {
+      const { error } = await supabase
+        .from('study_routines')
+        .upsert({
+          user_id: user.id,
+          routine_content: routine,
+          start_date: routineStartDate || new Date().toISOString().split('T')[0],
+          updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id' })
 
-    setSaving(false)
-    if (error) {
-      setMessage('Failed to save routine.')
-    } else {
-      setMessage('Routine & progress successfully saved to database!')
-      setTimeout(() => setMessage(''), 4000)
+      if (error) {
+        console.error('Supabase save error:', error)
+        setMessage(`Failed to save: ${error.message || error.hint || JSON.stringify(error)}`)
+      } else {
+        setMessage('Routine & progress successfully saved to database!')
+        setTimeout(() => setMessage(''), 4000)
+      }
+    } catch (err: any) {
+      console.error('Unexpected save error:', err)
+      setMessage('An unexpected error occurred while saving.')
+    } finally {
+      setSaving(false)
     }
   }
 
@@ -422,8 +421,8 @@ export default function RoutineWizardPage() {
               Matric AI Routine Portal {step === 4 ? '(Saved Routine)' : `(Step ${step} of 3)`}
             </h1>
             <p className="text-[10px] text-slate-600 dark:text-gray-400">
-              {step === 1 && 'Select Grade & Subjects'}
-              {step === 2 && 'Select Chapters'}
+              {step === 1 && `Active Profile: ${selectedGrade} (${studyGroup}) • Select Subjects`}
+              {step === 2 && 'Select Chapters from Punjab Syllabus'}
               {step === 3 && 'Select Topics & Parameters'}
               {step === 4 && 'Your Active Customized Study Routine'}
             </p>
@@ -459,65 +458,17 @@ export default function RoutineWizardPage() {
           <div className="bg-white/95 dark:bg-[#030712]/90 border border-cyan-500/30 dark:border-cyan-500/20 rounded-3xl p-6 backdrop-blur-xl space-y-5 shadow-[0_15px_40px_rgba(6,182,212,0.2),0_15px_30px_rgba(0,0,0,0.2)] dark:shadow-2xl">
             <div className="space-y-1">
               <span className="text-[11px] text-cyan-700 dark:text-cyan-400 font-bold uppercase tracking-wider">Step 1 of 3</span>
-              <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">Select Your Grade & Subjects</h2>
-              <p className="text-xs text-slate-600 dark:text-gray-400">Choose whether you are in 9th or 10th grade to load respective books.</p>
+              <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">Select Your Active Subjects</h2>
+              <p className="text-xs text-slate-600 dark:text-gray-400">These are the subjects configured in your student profile for {selectedGrade} ({studyGroup}).</p>
             </div>
-
-            <div className="grid grid-cols-2 gap-3">
-              <button
-                onClick={() => handleGradeChange('9th')}
-                className={`py-3 rounded-2xl font-bold text-xs border transition-all cursor-pointer ${
-                  selectedGrade === '9th' 
-                    ? 'bg-cyan-500 text-slate-950 border-cyan-400 shadow-lg shadow-cyan-500/30' 
-                    : 'bg-cyan-50/80 dark:bg-[#02060c] text-slate-800 dark:text-gray-300 border-cyan-500/30 dark:border-cyan-500/15 hover:border-cyan-500/50 shadow-[0_4px_15px_rgba(6,182,212,0.12),0_4px_10px_rgba(0,0,0,0.08)] dark:shadow-none'
-                }`}
-              >
-                9th Grade Books
-              </button>
-              <button
-                onClick={() => handleGradeChange('10th')}
-                className={`py-3 rounded-2xl font-bold text-xs border transition-all cursor-pointer ${
-                  selectedGrade === '10th' 
-                    ? 'bg-cyan-500 text-slate-950 border-cyan-400 shadow-lg shadow-cyan-500/30' 
-                    : 'bg-cyan-50/80 dark:bg-[#02060c] text-slate-800 dark:text-gray-300 border-cyan-500/30 dark:border-cyan-500/15 hover:border-cyan-500/50 shadow-[0_4px_15px_rgba(6,182,212,0.12),0_4px_10px_rgba(0,0,0,0.08)] dark:shadow-none'
-                }`}
-              >
-                10th Grade Books
-              </button>
-            </div>
-
-            {(selectedGrade === '9th' || selectedGrade === '10th') && (
-              <div className="flex items-center justify-center space-x-3 pt-1">
-                <button
-                  onClick={() => handleGroupChange('science')}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                    studyGroup === 'science'
-                      ? 'bg-cyan-500/25 border-cyan-400 text-cyan-800 dark:text-cyan-300 shadow-[0_2px_10px_rgba(6,182,212,0.15)]'
-                      : 'bg-cyan-50/80 dark:bg-[#02060c] border-cyan-500/30 dark:border-cyan-500/15 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white shadow-[0_4px_12px_rgba(6,182,212,0.1),0_4px_8px_rgba(0,0,0,0.06)] dark:shadow-none'
-                  }`}
-                >
-                  Science Group
-                </button>
-                <button
-                  onClick={() => handleGroupChange('arts')}
-                  className={`px-4 py-2 rounded-xl text-xs font-bold border transition-all cursor-pointer ${
-                    studyGroup === 'arts'
-                      ? 'bg-cyan-500/25 border-cyan-400 text-cyan-800 dark:text-cyan-300 shadow-[0_2px_10px_rgba(6,182,212,0.15)]'
-                      : 'bg-cyan-50/80 dark:bg-[#02060c] border-cyan-500/30 dark:border-cyan-500/15 text-slate-600 dark:text-gray-400 hover:text-slate-900 dark:hover:text-white shadow-[0_4px_12px_rgba(6,182,212,0.1),0_4px_8px_rgba(0,0,0,0.06)] dark:shadow-none'
-                  }`}
-                >
-                  Arts / Humanities Group
-                </button>
-              </div>
-            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
               {allSubjects.map((sub) => {
-                const isSelected = selectedSubjectIds.includes(sub.id)
+                const isSelected = selectedSubjectNames.includes(sub.name)
                 return (
                   <div
                     key={sub.id}
-                    onClick={() => toggleSubject(sub.id)}
+                    onClick={() => toggleSubject(sub.name)}
                     className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-center justify-between ${
                       isSelected 
                         ? 'bg-cyan-500/15 border-cyan-400 text-cyan-950 dark:text-cyan-200 shadow-[0_0_20px_rgba(6,182,212,0.25),0_4px_12px_rgba(0,0,0,0.1)]' 
@@ -549,32 +500,31 @@ export default function RoutineWizardPage() {
             <div className="space-y-1">
               <span className="text-[11px] text-cyan-700 dark:text-cyan-400 font-bold uppercase tracking-wider">Step 2 of 3</span>
               <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">Select Chapters</h2>
-              <p className="text-xs text-slate-600 dark:text-gray-400">Chapters are grouped by your selected books. Check the ones you want to study.</p>
+              <p className="text-xs text-slate-600 dark:text-gray-400">Loaded from Punjab Syllabus Board database.</p>
             </div>
 
             <div className="space-y-6 max-h-[50vh] overflow-y-auto pr-2">
-              {(selectedSubjectIds.length > 0 ? selectedSubjectIds : allSubjects.map(s => s.id)).map((subId) => {
-                const subjectObj = allSubjects.find(s => String(s.id) === String(subId))
-                const chaptersForThisSubject = allChapters.filter(ch => String(ch.subject_id) === String(subId))
+              {(selectedSubjectNames.length > 0 ? selectedSubjectNames : activeSubjects).map((subjName) => {
+                const chaptersForThisSubject = allChapters.filter(ch => ch.subject === subjName)
 
                 if (chaptersForThisSubject.length === 0) return null
 
                 return (
-                  <div key={subId} className="space-y-2.5 bg-cyan-50/60 dark:bg-[#02060c] p-4 rounded-2xl border border-cyan-500/30 dark:border-cyan-500/15 shadow-[0_4px_15px_rgba(6,182,212,0.1),0_4px_10px_rgba(0,0,0,0.08)] dark:shadow-none">
+                  <div key={subjName} className="space-y-2.5 bg-cyan-50/60 dark:bg-[#02060c] p-4 rounded-2xl border border-cyan-500/30 dark:border-cyan-500/15 shadow-[0_4px_15px_rgba(6,182,212,0.1),0_4px_10px_rgba(0,0,0,0.08)] dark:shadow-none">
                     <div className="flex items-center space-x-2 border-b border-cyan-500/30 dark:border-cyan-500/15 pb-2">
                       <BookOpen size={16} className="text-cyan-700 dark:text-cyan-400" />
                       <h3 className="text-xs font-extrabold text-cyan-800 dark:text-cyan-300 uppercase tracking-wide">
-                        {subjectObj ? subjectObj.name : 'Subject'}
+                        {subjName}
                       </h3>
                     </div>
 
                     <div className="space-y-2 pt-1">
                       {chaptersForThisSubject.map((ch) => {
-                        const isSelected = selectedChapterIds.includes(ch.id)
+                        const isSelected = selectedChapterTitles.includes(ch.title)
                         return (
                           <div
                             key={ch.id}
-                            onClick={() => toggleChapter(ch.id)}
+                            onClick={() => toggleChapter(ch.title)}
                             className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between ${
                               isSelected 
                                 ? 'bg-cyan-500/15 border-cyan-400 text-cyan-950 dark:text-cyan-200 shadow-[0_0_15px_rgba(6,182,212,0.15),0_2px_8px_rgba(0,0,0,0.08)]' 
@@ -582,7 +532,6 @@ export default function RoutineWizardPage() {
                             }`}
                           >
                             <div className="flex items-center space-x-3">
-                              <span className="text-xs font-bold text-cyan-700 dark:text-cyan-400">Ch {ch.chapter_number || '•'}:</span>
                               <span className="text-xs font-medium">{ch.title}</span>
                             </div>
                             {isSelected ? <CheckSquare size={16} className="text-cyan-700 dark:text-cyan-400" /> : <Square size={16} className="text-slate-500 dark:text-gray-600" />}
@@ -610,8 +559,15 @@ export default function RoutineWizardPage() {
             <div className="space-y-1">
               <span className="text-[11px] text-cyan-700 dark:text-cyan-400 font-bold uppercase tracking-wider">Step 3 of 3</span>
               <h2 className="text-xl font-extrabold text-slate-900 dark:text-white">Select Topics & Schedule Parameters</h2>
-              <p className="text-xs text-slate-600 dark:text-gray-400">Topics are grouped by your selected chapters. Check the ones you want to focus on.</p>
+              <p className="text-xs text-slate-600 dark:text-gray-400">Topics loaded from Punjab syllabus database.</p>
             </div>
+
+            {errorMessage && (
+              <div className="p-3 bg-red-500/10 border border-red-500/40 rounded-2xl text-red-600 dark:text-red-400 text-xs text-center flex items-center justify-center space-x-2">
+                <AlertCircle size={16} />
+                <span>{errorMessage}</span>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-cyan-50/60 dark:bg-[#02060c] p-4 rounded-2xl border border-cyan-500/30 dark:border-cyan-500/10 shadow-[0_4px_15px_rgba(6,182,212,0.1),0_4px_10px_rgba(0,0,0,0.08)] dark:shadow-none">
               <div className="space-y-1">
@@ -640,18 +596,17 @@ export default function RoutineWizardPage() {
             <div className="space-y-6 max-h-[40vh] overflow-y-auto pr-2">
               <label className="text-xs text-cyan-800 dark:text-cyan-300 font-bold uppercase tracking-wide block">Select Topics by Chapters:</label>
               
-              {(selectedChapterIds.length > 0 ? selectedChapterIds : allChapters.map(c => c.id)).map((chId) => {
-                const chapterObj = allChapters.find(c => String(c.id) === String(chId))
-                const topicsForThisChapter = allTopics.filter(t => String(t.chapter_id) === String(chId))
+              {(selectedChapterTitles.length > 0 ? selectedChapterTitles : allChapters.map(c => c.title)).map((chTitle) => {
+                const topicsForThisChapter = allTopics.filter(t => t.chapter_title === chTitle)
 
                 if (topicsForThisChapter.length === 0) return null
 
                 return (
-                  <div key={chId} className="space-y-2.5 bg-cyan-50/60 dark:bg-[#02060c] p-4 rounded-2xl border border-cyan-500/30 dark:border-cyan-500/15 shadow-[0_4px_15px_rgba(6,182,212,0.1),0_4px_10px_rgba(0,0,0,0.08)] dark:shadow-none">
+                  <div key={chTitle} className="space-y-2.5 bg-cyan-50/60 dark:bg-[#02060c] p-4 rounded-2xl border border-cyan-500/30 dark:border-cyan-500/15 shadow-[0_4px_15px_rgba(6,182,212,0.1),0_4px_10px_rgba(0,0,0,0.08)] dark:shadow-none">
                     <div className="flex items-center space-x-2 border-b border-cyan-500/30 dark:border-cyan-500/15 pb-2">
                       <BookOpen size={16} className="text-cyan-700 dark:text-cyan-400" />
                       <h3 className="text-xs font-extrabold text-cyan-800 dark:text-cyan-300 uppercase tracking-wide">
-                        {chapterObj ? `Ch ${chapterObj.chapter_number || ''}: ${chapterObj.title}` : 'Chapter'}
+                        {chTitle}
                       </h3>
                     </div>
 

@@ -343,7 +343,7 @@ export default function HomePage() {
                 <div className="p-2.5 bg-indigo-500/15 border border-indigo-500/35 rounded-xl text-indigo-500 dark:text-indigo-400 w-fit shadow-[0_2px_8px_rgba(0,0,0,0.1),0_2px_8px_rgba(99,102,241,0.08)]">
                   <BookOpen size={18} />
                 </div>
-                <h3 className="text-sm font-bold text-slate-900 dark:text-white">Quick Notes</h3>
+                <h3 className="text-sm font-bold text-slate-900 dark:text-white">Notes</h3>
                 <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed">
                   Quick reminders, formulas or short revision notes.
                 </p>
@@ -368,7 +368,7 @@ export default function HomePage() {
                   <MessageSquare size={18} />
                 </div>
                 <div>
-                  <h4 className="text-slate-900 dark:text-white font-bold text-sm">Quick Test (Demo)</h4>
+                  <h4 className="text-slate-900 dark:text-white font-bold text-sm">Test Section</h4>
                   <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-relaxed mt-0.5">Take a 3-question sample test to check readiness.</p>
                 </div>
               </div>

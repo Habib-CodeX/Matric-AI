@@ -5,85 +5,6 @@ import { useRouter } from 'next/navigation'
 import { supabase } from '../lib/supabase'
 import { BookOpen, Trash2, ArrowLeft, Loader2, Search, Save, Edit3, FolderGit2, Settings } from 'lucide-react'
 
-// Master Database of All Real Matric Chapters per Subject
-const masterSubjectsData: Record<string, string[]> = {
-  "Physics": [
-    "Chapter 1: Physical Quantities and Measurement", "Chapter 2: Kinematics", "Chapter 3: Dynamics", 
-    "Chapter 4: Turning Effect of Forces", "Chapter 5: Gravitation", "Chapter 6: Work and Energy", 
-    "Chapter 7: Properties of Matter", "Chapter 8: Thermal Properties of Matter", "Chapter 9: Transfer of Heat", 
-    "Chapter 10: Simple Harmonic Motion and Waves", "Chapter 11: Sound", "Chapter 12: Geometrical Optics", 
-    "Chapter 13: Electrostatics", "Chapter 14: Current Electricity", "Chapter 15: Electromagnetism", 
-    "Chapter 16: Basic Electronics", "Chapter 17: Information and Communication Technology", "Chapter 18: Atomic and Nuclear Physics"
-  ],
-  "Chemistry": [
-    "Chapter 1: Fundamentals of Chemistry", "Chapter 2: Structure of Atoms", "Chapter 3: Periodic Table and Periodicity of Properties", 
-    "Chapter 4: Structure of Molecules", "Chapter 5: Physical States of Matter", "Chapter 6: Solutions", 
-    "Chapter 7: Electrochemistry", "Chapter 8: Chemical Reactivity", "Chapter 9: Chemical Equilibrium", 
-    "Chapter 10: Acids, Bases and Salts", "Chapter 11: Organic Chemistry", "Chapter 12: Hydrocarbons", 
-    "Chapter 13: Biochemistry", "Chapter 14: Atmosphere", "Chapter 15: Water", "Chapter 16: Chemical Industries"
-  ],
-  "Mathematics": [
-    "Chapter 1: Matrices and Determinants", "Chapter 2: Real and Complex Numbers", "Chapter 3: Logarithms", 
-    "Chapter 4: Algebraic Expressions and Formulas", "Chapter 5: Factorization", "Chapter 6: Algebraic Manipulation", 
-    "Chapter 7: Linear Equations and Inequalities", "Chapter 8: Linear Graphs", "Chapter 9: Coordinate Geometry", 
-    "Chapter 10: Congruent Triangles", "Chapter 11: Parallelograms and Triangles", "Chapter 12: Line & Angle Bisectors", 
-    "Chapter 13: Sides and Angles of a Triangle", "Chapter 14: Ratio and Proportion", "Chapter 15: Pythagoras' Theorem", 
-    "Chapter 16: Theorems Related to Area", "Chapter 17: Practical Geometry", "Chapter 18: Introduction to Trigonometry"
-  ],
-  "Biology": [
-    "Chapter 1: Introduction to Biology", "Chapter 2: Solving a Biological Problem", "Chapter 3: Biodiversity", 
-    "Chapter 4: Cells and Tissues", "Chapter 5: Cell Cycle", "Chapter 6: Enzymes", "Chapter 7: Bioenergetics", 
-    "Chapter 8: Nutrition", "Chapter 9: Transport", "Chapter 10: Gaseous Exchange", "Chapter 11: Homeostasis", 
-    "Chapter 12: Coordination and Control", "Chapter 13: Support and Movement", "Chapter 14: Reproduction", 
-    "Chapter 15: Inheritance", "Chapter 16: Man and His Environment", "Chapter 17: Biotechnology", "Chapter 18: Pharmacology"
-  ],
-  "Computer Science": [
-    "Chapter 1: Introduction to Computer", "Chapter 2: Computer Networks", "Chapter 3: Data Communication", 
-    "Chapter 4: Applications of Computer", "Chapter 5: Computer Security and Ethics", "Chapter 6: Web Development (HTML & CSS)", 
-    "Chapter 7: Introduction to Programming (C++)", "Chapter 8: Control Structures", "Chapter 9: Arrays and Functions"
-  ],
-  "General Mathematics": [
-    "Chapter 1: Percentage, Ratio and Proportion", "Chapter 2: Zakat, Ushr and Inheritance", "Chapter 3: Business Mathematics", 
-    "Chapter 4: Financial Arithmetic", "Chapter 5: Polynomials", "Chapter 6: Factorization and Algebraic Manipulation", 
-    "Chapter 7: Linear Equations and Matrices", "Chapter 8: Quadratic Equations", "Chapter 9: Fundamentals of Geometry", 
-    "Chapter 10: Deductive Geometry", "Chapter 11: Introduction to Trigonometry", "Chapter 12: Statistics and Probability"
-  ],
-  "General Science": [
-    "Chapter 1: History of Science", "Chapter 2: Environment and Life", "Chapter 3: Biotechnology in Agriculture & Health", 
-    "Chapter 4: Human Health and Diseases", "Chapter 5: Population Growth", "Chapter 6: Chemical and Biological Resources", 
-    "Chapter 7: Matter and Radiation", "Chapter 8: Energy Sources", "Chapter 9: Space and Universe", "Chapter 10: Electronics and IT"
-  ],
-  "Islamiyat": [
-    "Chapter 1: Quran-e-Majeed (Surah Al-Anfal / Al-Ahzab)", "Chapter 2: Ahadith-e-Nabwi", "Chapter 3: Imaniyat aur Arkan-e-Islam", 
-    "Chapter 4: Seerat-un-Nabi (PBUH)", "Chapter 5: Akhlaq-e-Hasana", "Chapter 6: Historical Events & Verses"
-  ],
-  "Pakistan Studies": [
-    "Chapter 1: Ideological Basis of Pakistan", "Chapter 2: Making of Pakistan", "Chapter 3: Land and Environment", 
-    "Chapter 4: History of Pakistan P1", "Chapter 5: History of Pakistan P2", "Chapter 6: Economic Development"
-  ],
-  "English": [
-    "Chapter 1: The Saviour of Mankind", "Chapter 2: Patriotism", "Chapter 3: Media and Its Impact", 
-    "Chapter 4: Hazrat Asma (R.A)", "Chapter 5: Daffodils", "Chapter 6: The Quaid's Vision and Pakistan", 
-    "Chapter 7: Little Things", "Chapter 8: Stopping by Woods", "Chapter 9: All Lives in Harmony", "Chapter 10: First Aid"
-  ],
-  "Urdu": [
-    "Chapter 1: Hamd & Naat", "Chapter 2: Mirza Ghalib k Khutoot", "Chapter 3: Umeed ki Khushi", 
-    "Chapter 4: Parwaana-e-Azaadi", "Chapter 5: Nazm", "Chapter 6: Mustaqbil ki Jhalak", "Chapter 7: Ghazliyat"
-  ],
-  "Civics": [
-    "Chapter 1: Introduction to Civics", "Chapter 2: Individual and Society", "Chapter 3: State and Government", 
-    "Chapter 4: Fundamental Rights and Duties", "Chapter 5: Public Opinion"
-  ],
-  "Education": [
-    "Chapter 1: Meaning and Scope of Education", "Chapter 2: Islamic Concept of Education", 
-    "Chapter 3: Methods of Teaching", "Chapter 4: Curriculum Development"
-  ],
-  "Economics": [
-    "Chapter 1: Introduction to Economics", "Chapter 2: Consumer Behavior", "Chapter 3: Production and Supply", 
-    "Chapter 4: National Income", "Chapter 5: Public Finance"
-  ]
-}
-
 export default function NotesPage() {
   const router = useRouter()
   const [sessionUser, setSessionUser] = useState<any>(null)
@@ -150,10 +71,35 @@ export default function NotesPage() {
       setUserClass(currentClass)
       setActiveSubjects(currentSubjects)
 
+      // Fetch Real Chapters from punjab_board_syllabus table based on user's class and group
+      const { data: syllabusData, error: syllabusError } = await supabase
+        .from('punjab_board_syllabus')
+        .select('subject, chapter_title')
+        .eq('class_level', currentClass)
+        .eq('group_type', currentGroup)
+
       const filteredMap: any = {}
       currentSubjects.forEach((subj: string) => {
-        filteredMap[subj] = masterSubjectsData[subj] || [`Chapter 1: Introduction to ${subj}`, `Chapter 2: Core Concepts`]
+        filteredMap[subj] = []
       })
+
+      if (!syllabusError && syllabusData) {
+        syllabusData.forEach((row: any) => {
+          if (filteredMap[row.subject]) {
+            if (!filteredMap[row.subject].includes(row.chapter_title)) {
+              filteredMap[row.subject].push(row.chapter_title)
+            }
+          }
+        })
+      }
+
+      // Fallback if any active subject has no chapters found in DB
+      currentSubjects.forEach((subj: string) => {
+        if (!filteredMap[subj] || filteredMap[subj].length === 0) {
+          filteredMap[subj] = [`Chapter 1: Introduction to ${subj}`, `Chapter 2: Core Concepts`]
+        }
+      })
+
       setSubjectsData(filteredMap)
 
       if (currentSubjects.length > 0) {
